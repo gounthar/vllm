@@ -46,6 +46,7 @@ echo "" | tee -a "$LOGFILE"
 echo "--- Installing build dependencies ---" | tee -a "$LOGFILE"
 pip3 install --no-cache-dir \
     "setuptools>=77.0.3" setuptools-scm packaging wheel ninja jinja2 \
+    maturin \
     2>&1 | tee -a "$LOGFILE"
 
 # Step 3: Install Python dependencies using pre-built riscv64 wheels
