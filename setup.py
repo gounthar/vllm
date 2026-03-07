@@ -995,7 +995,13 @@ if _is_cuda():
 if _is_cpu():
     import platform
 
-    if platform.machine() in ("x86_64", "AMD64"):
+    if platform.machine() == "riscv64":
+        # Phase 1: pure Python mode — skip C++ extensions on RISC-V
+        # C++ CPU kernels require platform-specific intrinsics (RVV support
+        # is not yet upstream). The Python-only mode is still functional
+        # for inference via the CPU attention backend.
+        pass
+    elif platform.machine() in ("x86_64", "AMD64"):
         ext_modules.append(CMakeExtension(name="vllm._C"))
         ext_modules.append(CMakeExtension(name="vllm._C_AVX2"))
     else:
