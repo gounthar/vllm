@@ -9,7 +9,7 @@ set -euo pipefail
 
 PYTORCH_VERSION="2.10.0"
 BUILD_DIR="${HOME}/pytorch-build"
-LOGFILE="build-pytorch-$(date +%Y%m%d-%H%M%S).log"
+LOGFILE="$(pwd)/build-pytorch-$(date +%Y%m%d-%H%M%S).log"
 
 echo "=== PyTorch ${PYTORCH_VERSION} RISC-V Build ===" | tee "$LOGFILE"
 echo "Date: $(date)" | tee -a "$LOGFILE"
