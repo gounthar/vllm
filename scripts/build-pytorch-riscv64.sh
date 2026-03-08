@@ -22,6 +22,16 @@ if [ "$ARCH" != "riscv64" ]; then
     exit 1
 fi
 
+# Step 0b: Set up or activate Python venv (Debian PEP 668 blocks system-wide pip)
+VENV_DIR="${HOME}/pytorch-venv"
+if [ ! -d "$VENV_DIR" ]; then
+    echo "--- Creating venv at $VENV_DIR ---" | tee -a "$LOGFILE"
+    python3 -m venv --system-site-packages "$VENV_DIR" 2>&1 | tee -a "$LOGFILE"
+fi
+# shellcheck disable=SC1091
+source "$VENV_DIR/bin/activate"
+echo "  Python: $(python3 --version), pip: $(pip3 --version)" | tee -a "$LOGFILE"
+
 # Step 1: Install system build dependencies
 echo "" | tee -a "$LOGFILE"
 echo "--- Installing system dependencies ---" | tee -a "$LOGFILE"
