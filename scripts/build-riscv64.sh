@@ -84,5 +84,29 @@ if [ $BUILD_STATUS -eq 0 ]; then
 else
     echo "=== BUILD FAILED (exit code: $BUILD_STATUS) ===" | tee -a "$LOGFILE"
     echo "Check $LOGFILE for details" | tee -a "$LOGFILE"
-    exit 1
+fi
+
+# Step 5: Detect packages built from source (missing riscv64 wheels)
+echo "" | tee -a "$LOGFILE"
+echo "--- Source-build detection ---" | tee -a "$LOGFILE"
+SOURCE_BUILDS=$(grep -E "Building wheel for " "$LOGFILE" | sed 's/.*Building wheel for \([^ ]*\).*/\1/' | sort -u)
+if [ -n "$SOURCE_BUILDS" ]; then
+    echo "WARNING: The following packages were built from source (no riscv64 wheel):" | tee -a "$LOGFILE"
+    echo "$SOURCE_BUILDS" | while read -r pkg; do
+        # Try to extract version from the log
+        ver=$(grep -oP "(?<=Successfully built ).*" "$LOGFILE" | grep -oP "$pkg[^ ]*" | head -1)
+        if [ -z "$ver" ]; then
+            ver=$(grep -oP "Building wheel for $pkg \(.*version (\K[^)]+)" "$LOGFILE" | head -1)
+        fi
+        echo "  - $pkg${ver:+ ($ver)}" | tee -a "$LOGFILE"
+    done
+    echo "" | tee -a "$LOGFILE"
+    echo "Consider adding these to the riscv64-python-wheels index:" | tee -a "$LOGFILE"
+    echo "  https://github.com/gounthar/riscv64-python-wheels" | tee -a "$LOGFILE"
+else
+    echo "All packages installed from prebuilt wheels." | tee -a "$LOGFILE"
+fi
+
+if [ $BUILD_STATUS -ne 0 ]; then
+    exit $BUILD_STATUS
 fi
