@@ -39,7 +39,9 @@ echo "--- Cloning PyTorch v${PYTORCH_VERSION} ---" | tee -a "$LOGFILE"
 if [ -d "$BUILD_DIR" ]; then
     echo "  Build dir exists, reusing: $BUILD_DIR" | tee -a "$LOGFILE"
     cd "$BUILD_DIR"
-    git fetch --depth 1 origin "v${PYTORCH_VERSION}" 2>&1 | tee -a "$LOGFILE" || true
+    git fetch --depth 1 origin "v${PYTORCH_VERSION}" 2>&1 | tee -a "$LOGFILE"
+    git checkout "v${PYTORCH_VERSION}" 2>&1 | tee -a "$LOGFILE" || git checkout FETCH_HEAD 2>&1 | tee -a "$LOGFILE"
+    git reset --hard 2>&1 | tee -a "$LOGFILE"
 else
     git clone --depth 1 --branch "v${PYTORCH_VERSION}" \
         https://github.com/pytorch/pytorch.git "$BUILD_DIR" \
@@ -93,8 +95,10 @@ echo "" | tee -a "$LOGFILE"
 echo "--- Building PyTorch wheel (this will take hours) ---" | tee -a "$LOGFILE"
 echo "Build start: $(date)" | tee -a "$LOGFILE"
 
+set +e
 python3 setup.py bdist_wheel 2>&1 | tee -a "$LOGFILE"
-BUILD_STATUS=$?
+BUILD_STATUS=${PIPESTATUS[0]}
+set -e
 
 echo "Build end: $(date)" | tee -a "$LOGFILE"
 

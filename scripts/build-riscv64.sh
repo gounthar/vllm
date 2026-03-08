@@ -36,7 +36,9 @@ python3 -c "import torch; print(f'  PyTorch: {torch.__version__}')" 2>&1 | tee -
 echo "" | tee -a "$LOGFILE"
 echo "--- Setting up CPU-only build ---" | tee -a "$LOGFILE"
 export VLLM_TARGET_DEVICE=cpu
-export MAX_JOBS=$(( $(nproc) / 2 ))  # Don't OOM on low-RAM boards
+NPROC=$(nproc)
+export MAX_JOBS=$(( NPROC / 2 ))
+[ "$MAX_JOBS" -lt 1 ] && MAX_JOBS=1  # Clamp to 1 on single-core systems
 
 echo "  VLLM_TARGET_DEVICE=$VLLM_TARGET_DEVICE" | tee -a "$LOGFILE"
 echo "  MAX_JOBS=$MAX_JOBS" | tee -a "$LOGFILE"
@@ -60,17 +62,19 @@ pip3 install --no-cache-dir \
     prometheus_client pillow psutil cachetools \
     protobuf tiktoken filelock regex blake3 \
     safetensors pyyaml cffi cryptography watchfiles \
-    2>&1 | tee -a "$LOGFILE" || true
+    2>&1 | tee -a "$LOGFILE"
 
 # Step 4: Build vLLM (--no-build-isolation to use system torch)
 echo "" | tee -a "$LOGFILE"
 echo "--- Building vLLM ---" | tee -a "$LOGFILE"
 echo "Build start: $(date)" | tee -a "$LOGFILE"
 
+set +e
 pip3 install -e . --no-build-isolation \
     --extra-index-url "$RISCV_WHEEL_INDEX" \
     2>&1 | tee -a "$LOGFILE"
-BUILD_STATUS=$?
+BUILD_STATUS=${PIPESTATUS[0]}
+set -e
 
 echo "Build end: $(date)" | tee -a "$LOGFILE"
 
@@ -80,4 +84,5 @@ if [ $BUILD_STATUS -eq 0 ]; then
 else
     echo "=== BUILD FAILED (exit code: $BUILD_STATUS) ===" | tee -a "$LOGFILE"
     echo "Check $LOGFILE for details" | tee -a "$LOGFILE"
+    exit 1
 fi
