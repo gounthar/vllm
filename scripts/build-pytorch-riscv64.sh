@@ -77,7 +77,8 @@ echo "--- Configuring build ---" | tee -a "$LOGFILE"
 
 export USE_CUDA=0
 export USE_ROCM=0
-export USE_DISTRIBUTED=0
+export USE_DISTRIBUTED=1
+export USE_GLOO=1
 export USE_MKLDNN=0
 export USE_FBGEMM=0
 export USE_NNPACK=0
