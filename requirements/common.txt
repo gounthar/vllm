@@ -31,7 +31,8 @@ partial-json-parser # used for parsing partial JSON outputs
 pyzmq >= 25.0.0
 msgspec
 gguf >= 0.17.0
-mistral_common[image] >= 1.9.1
+mistral_common[image] >= 1.9.1; platform_machine != "riscv64"
+mistral_common >= 1.9.1; platform_machine == "riscv64"    # no [image] extra on riscv64 (opencv-python-headless has no wheel)
 opencv-python-headless >= 4.13.0; platform_machine == "x86_64" or platform_machine == "aarch64" or platform_machine == "arm64" or platform_machine == "s390x" or platform_machine == "ppc64le"    # required for video IO
 pyyaml
 six>=1.16.0; python_version > '3.11' # transitive dependency of pandas that needs to be the latest version for python 3.12
