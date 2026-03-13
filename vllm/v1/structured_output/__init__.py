@@ -112,6 +112,7 @@ class StructuredOutputManager:
             vocab_size = self.vllm_config.model_config.get_vocab_size()
             if backend == "xgrammar":
                 from vllm.v1.structured_output.backend_xgrammar import XgrammarBackend
+
                 self.backend = XgrammarBackend(
                     self.vllm_config,
                     tokenizer=self.tokenizer,
@@ -119,6 +120,7 @@ class StructuredOutputManager:
                 )
             elif backend == "guidance":
                 from vllm.v1.structured_output.backend_guidance import GuidanceBackend
+
                 self.backend = GuidanceBackend(
                     self.vllm_config,
                     tokenizer=self.tokenizer,
