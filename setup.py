@@ -921,6 +921,10 @@ if _is_cpu():
     if platform.machine() in ("x86_64", "AMD64"):
         ext_modules.append(CMakeExtension(name="vllm._C"))
         ext_modules.append(CMakeExtension(name="vllm._C_AVX2"))
+    elif platform.machine() == "riscv64":
+        # RISC-V: skip C++ extensions for now (pure-Python mode).
+        # RVV kernel support will be added in a follow-up PR.
+        pass
     else:
         ext_modules.append(CMakeExtension(name="vllm._C"))
 
