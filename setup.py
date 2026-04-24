@@ -14,12 +14,27 @@ import sysconfig
 from pathlib import Path
 from shutil import which
 
-import torch
+import platform as _platform
 from packaging.version import Version, parse
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
 from setuptools_scm import get_version
-from torch.utils.cpp_extension import CUDA_HOME, ROCM_HOME
+
+if _platform.machine() == "riscv64":
+    # torch has no riscv64 wheel; mock the minimal surface used by setup.py
+    class _MockTorchVersion:
+        cuda = None
+        hip = None
+
+    class _MockTorch:
+        version = _MockTorchVersion()
+
+    torch = _MockTorch()  # type: ignore[assignment]
+    CUDA_HOME = None
+    ROCM_HOME = None
+else:
+    import torch
+    from torch.utils.cpp_extension import CUDA_HOME, ROCM_HOME
 
 
 def load_module_from_path(module_name, path):
