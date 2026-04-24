@@ -19,19 +19,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        run: |
-          python3 --version || (sudo apt-get update -q && sudo apt-get install -y python3 python3-pip)
-          python3 -m pip install --upgrade pip
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
       - name: Install build dependencies
-        run: python3 -m pip install build wheel
+        run: python -m pip install build wheel
 
       - name: Build wheel (CPU-only, pure-Python riscv64)
         env:
           VLLM_TARGET_DEVICE: cpu
         run: |
-          python3 -m build --wheel --no-isolation \
+          python -m build --wheel --no-isolation \
             --config-setting=--build-option=--python-tag=cp312 \
             --outdir dist/
 
