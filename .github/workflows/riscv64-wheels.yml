@@ -35,6 +35,9 @@ jobs:
         run: |
           python -m build --wheel --no-isolation --outdir dist/
 
+      - name: Retag wheel for linux_riscv64
+        run: python -m wheel tags --platform-tag linux_riscv64 --remove dist/*.whl
+
       - name: List built wheels
         run: ls -lh dist/
 
